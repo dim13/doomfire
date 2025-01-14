@@ -1,46 +1,54 @@
 use rand::{rngs::ThreadRng, Rng};
 
+const WIDTH: usize = 320;
+const HEIGHT: usize = 240;
+
 pub struct Fire<'a> {
-    width: usize,
-    height: usize,
     pixels: Vec<u8>,
     palette: &'a [u32],
     rng: ThreadRng,
 }
 
 impl Fire<'_> {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new() -> Self {
         let mut f = Fire {
-            width: width,
-            height: height,
-            pixels: vec![0u8; width * height],
+            pixels: vec![0u8; WIDTH * HEIGHT],
             palette: PALETTE,
             rng: rand::thread_rng(),
         };
         f.seed();
         f
     }
-    fn jitter(&mut self) -> i8 {
-        self.rng.gen_range(-1..=1)
+    pub fn size(&self) -> (usize, usize) {
+        (WIDTH, HEIGHT)
+    }
+    fn jitter(&mut self, x: usize) -> usize {
+        self.rng.gen_range(0..3)
     }
     fn seed(&mut self) {
-        let y = self.height - 1;
+        let y = HEIGHT - 1;
         let c = self.palette.len() as u8 - 1;
-        for x in 0..self.width {
+        for x in 0..WIDTH {
             self.set_index_at(x, y, c);
         }
     }
     pub fn bytes(&mut self) -> Vec<u32> {
-        let mut buffer = vec![0u32; self.width * self.height];
+        let mut buffer = vec![0u32; WIDTH * HEIGHT];
         for (n, v) in self.pixels.iter().enumerate() {
             buffer[n] = self.palette[*v as usize];
         }
         buffer
     }
     pub fn update(&mut self) {
-        for x in 0..self.width {
-            for y in 0..self.height {
-                let z = (self.jitter() + 1) as usize;
+        for x in 0..WIDTH {
+            for y in 0..HEIGHT {
+                /*
+                let (z, c) = (self.jitter(), self.get_index_at(x, y));
+                 * match (z, c) {
+                    (1, c) => self.set_index_at(x, y - 1, c - 1),
+                    (z, c) => self.set_index_at(x + z - 1, y - 1, c),
+                } */
+                let z = self.jitter(x);
                 let n = {
                     let v = self.get_index_at(x, y);
                     if v > 0 && z == 1 {
@@ -56,7 +64,7 @@ impl Fire<'_> {
         }
     }
     fn index(&self, x: usize, y: usize) -> usize {
-        self.width * y + x
+        WIDTH * y + x
     }
     fn get_index_at(&self, x: usize, y: usize) -> u8 {
         let n = self.index(x, y);
