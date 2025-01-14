@@ -1,12 +1,18 @@
-use rand::{rngs::ThreadRng, Rng};
+use enum_derived::Rand;
 
 const WIDTH: usize = 320;
-const HEIGHT: usize = 240;
+const HEIGHT: usize = 200;
 
 pub struct Fire<'a> {
     pixels: Vec<u8>,
     palette: &'a [u32],
-    rng: ThreadRng,
+}
+
+#[derive(Rand)]
+enum Jitter {
+    Left,
+    Right,
+    Middle,
 }
 
 impl Fire<'_> {
@@ -14,20 +20,16 @@ impl Fire<'_> {
         Fire {
             pixels: vec![0u8; WIDTH * HEIGHT],
             palette: PALETTE,
-            rng: rand::thread_rng(),
         }
     }
     pub fn size(&self) -> (usize, usize) {
         (WIDTH, HEIGHT)
     }
-    fn jitter(&mut self, x: usize) -> usize {
-        self.rng.gen_range(0..3)
-    }
     pub fn seed(&mut self) {
         let y = HEIGHT - 1;
         let c = self.palette.len() as u8 - 1;
         for x in 0..WIDTH {
-            self.set_index_at(x, y, c);
+            self.set_at(x, y, c);
         }
     }
     pub fn bytes(&mut self) -> Vec<u32> {
@@ -38,45 +40,31 @@ impl Fire<'_> {
         buffer
     }
     pub fn update(&mut self) {
+        const MAX_WIDTH: usize = WIDTH - 1;
         for x in 0..WIDTH {
-            for y in 0..HEIGHT {
-                /*
-                let (z, c) = (self.jitter(), self.get_index_at(x, y));
-                 * match (z, c) {
-                    (1, c) => self.set_index_at(x, y - 1, c - 1),
-                    (z, c) => self.set_index_at(x + z - 1, y - 1, c),
-                } */
-                let z = self.jitter(x);
-                let n = {
-                    let v = self.get_index_at(x, y);
-                    if v > 0 && z == 1 {
-                        v - 1
-                    } else {
-                        v
-                    }
+            for y in 1..HEIGHT {
+                let z = Jitter::rand();
+                let c = self.get_at(x, y);
+                let (x, c) = match (z, x, c) {
+                    (Jitter::Left, 1.., _) => (x - 1, c),
+                    (Jitter::Middle, _, 1..) => (x, c - 1),
+                    (Jitter::Right, ..MAX_WIDTH, _) => (x + 1, c),
+                    _ => (x, c),
                 };
-                if x + z > 0 && y > 0 {
-                    self.set_index_at(x + z - 1, y - 1, n);
-                }
+                self.set_at(x, y - 1, c);
             }
         }
     }
     fn index(&self, x: usize, y: usize) -> usize {
         WIDTH * y + x
     }
-    fn get_index_at(&self, x: usize, y: usize) -> u8 {
+    fn get_at(&self, x: usize, y: usize) -> u8 {
         let n = self.index(x, y);
-        if n < self.pixels.len() {
-            self.pixels[n]
-        } else {
-            0
-        }
+        self.pixels[n]
     }
-    fn set_index_at(&mut self, x: usize, y: usize, v: u8) {
+    fn set_at(&mut self, x: usize, y: usize, v: u8) {
         let n = self.index(x, y);
-        if n < self.pixels.len() {
-            self.pixels[n] = v;
-        }
+        self.pixels[n] = v;
     }
 }
 
