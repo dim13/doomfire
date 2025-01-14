@@ -11,13 +11,11 @@ pub struct Fire<'a> {
 
 impl Fire<'_> {
     pub fn new() -> Self {
-        let mut f = Fire {
+        Fire {
             pixels: vec![0u8; WIDTH * HEIGHT],
             palette: PALETTE,
             rng: rand::thread_rng(),
-        };
-        f.seed();
-        f
+        }
     }
     pub fn size(&self) -> (usize, usize) {
         (WIDTH, HEIGHT)
@@ -25,7 +23,7 @@ impl Fire<'_> {
     fn jitter(&mut self, x: usize) -> usize {
         self.rng.gen_range(0..3)
     }
-    fn seed(&mut self) {
+    pub fn seed(&mut self) {
         let y = HEIGHT - 1;
         let c = self.palette.len() as u8 - 1;
         for x in 0..WIDTH {

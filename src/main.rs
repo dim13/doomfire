@@ -5,6 +5,7 @@ mod fire;
 
 fn main() {
     let mut f = Fire::new();
+    f.seed();
     let (width, height) = f.size();
     let mut window = Window::new(
         "Doom Fire",
