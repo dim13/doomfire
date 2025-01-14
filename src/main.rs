@@ -13,6 +13,7 @@ fn main() {
         height,
         WindowOptions {
             scale: Scale::X2,
+            resize: true,
             ..WindowOptions::default()
         },
     )
