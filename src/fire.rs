@@ -1,7 +1,9 @@
 use enum_derived::Rand;
 
 const WIDTH: usize = 320;
+const MAX_WIDTH: usize = WIDTH - 1;
 const HEIGHT: usize = 240;
+const MAX_HEIGHT: usize = HEIGHT - 1;
 
 pub struct Fire {
     pixels: Vec<u8>,
@@ -26,10 +28,9 @@ impl Fire {
         (WIDTH, HEIGHT)
     }
     pub fn seed(&mut self) {
-        let y = HEIGHT - 1;
         let c = self.palette.len() as u8 - 1;
         for x in 0..WIDTH {
-            self.set_at(x, y, c);
+            self.set_at(x, MAX_HEIGHT, c);
         }
     }
     pub fn bytes(&mut self) -> Vec<u32> {
@@ -40,7 +41,6 @@ impl Fire {
         buffer
     }
     pub fn update(&mut self) {
-        const MAX_WIDTH: usize = WIDTH - 1;
         for x in 0..WIDTH {
             for y in 1..HEIGHT {
                 let z = Jitter::rand();
