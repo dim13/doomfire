@@ -1,11 +1,11 @@
 use enum_derived::Rand;
 
 const WIDTH: usize = 320;
-const HEIGHT: usize = 200;
+const HEIGHT: usize = 240;
 
-pub struct Fire<'a> {
+pub struct Fire {
     pixels: Vec<u8>,
-    palette: &'a [u32],
+    palette: Vec<u32>,
 }
 
 #[derive(Rand)]
@@ -15,11 +15,11 @@ enum Jitter {
     Middle,
 }
 
-impl Fire<'_> {
+impl Fire {
     pub fn new() -> Self {
         Fire {
             pixels: vec![0u8; WIDTH * HEIGHT],
-            palette: PALETTE,
+            palette: PALETTE.to_vec(),
         }
     }
     pub fn size(&self) -> (usize, usize) {
