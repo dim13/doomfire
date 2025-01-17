@@ -1,6 +1,6 @@
 pub struct Toggle<T>(T, T);
 
-impl<T: Copy + Clone> Toggle<T> {
+impl<T: Copy> Toggle<T> {
     pub fn new(a: T, b: T) -> Self {
         Toggle(a, b)
     }
