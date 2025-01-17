@@ -1,11 +1,14 @@
-use fire::Fire;
-use minifb::{Key, Scale, Window, WindowOptions};
+use fire::{Fire, BLACK, WHITE};
+use minifb::{Key, KeyRepeat, Scale, Window, WindowOptions};
+use toggle::Toggle;
 
 mod fire;
+mod toggle;
 
 fn main() {
     let mut f = Fire::new();
-    f.seed();
+    let mut t = Toggle::new(BLACK, WHITE);
+    f.seed(WHITE);
     let (width, height) = f.size();
     let mut window = Window::new(
         "Doom Fire",
@@ -21,6 +24,9 @@ fn main() {
     window.set_target_fps(60);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        if window.is_key_pressed(Key::Space, KeyRepeat::No) {
+            f.seed(t.toggle());
+        }
         f.update();
         window
             .update_with_buffer(&f.bytes(), width, height)

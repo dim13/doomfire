@@ -4,6 +4,8 @@ const WIDTH: usize = 320;
 const MAX_WIDTH: usize = WIDTH - 1;
 const HEIGHT: usize = 240;
 const MAX_HEIGHT: usize = HEIGHT - 1;
+pub const WHITE: u8 = PALETTE.len() as u8 - 1;
+pub const BLACK: u8 = 0;
 
 pub struct Fire {
     pixels: Vec<u8>,
@@ -27,8 +29,7 @@ impl Fire {
     pub fn size(&self) -> (usize, usize) {
         (WIDTH, HEIGHT)
     }
-    pub fn seed(&mut self) {
-        let c = self.palette.len() as u8 - 1;
+    pub fn seed(&mut self, c: u8) {
         for x in 0..WIDTH {
             self.set_at(x, MAX_HEIGHT, c);
         }
